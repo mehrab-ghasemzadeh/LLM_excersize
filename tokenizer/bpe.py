@@ -15,8 +15,10 @@ class bpe_tokenizer:
         ids = []
         input_text+="<|EOT|>"
         inp = re.split(r'([,.;?_!"()\']|--|\s)',input_text)
+        inp = [i.strip() for i in inp]
         for word in inp:
             while word != "":
+                print(word)
                 try:
                     if self.s2i[word]:
                         ids.append(self.s2i[word])
@@ -33,16 +35,21 @@ class bpe_tokenizer:
                             pass
         return ids
     def decode(self, ids):
+        if type(ids) == int:
+            num = ids
+            ids = []
+            ids.append(num)
         for i in ids:
-            text = "".join([self.i2s[i] for i in ids])
+            text = " ".join([self.i2s[i] for i in ids])
             text = re.sub(r'\s+([,.?!"()\'])', r'\1', text).replace("' ","'")
         return text
 
 
 
-with open ('./tokenizer/text.txt','r',encoding='utf-8') as file:
+with open ('./text.txt','r',encoding='utf-8') as file:
     text = file.read()
 all_words = re.split(r'([,.;?_!"()\']|--|\s)',text)
+all_words = [i.strip() for i in all_words]
 all_words.extend(['<|EOT|>'])
 all_words = list(set(all_words))
 
@@ -61,7 +68,7 @@ all_word_combos = set(sorted(all_word_combos))
 
 vocab = {token:index for index,token in enumerate(all_word_combos) if token}
 bpe = bpe_tokenizer()
-string_ = "His asbsaggav confident eyes grew dim, and his cheeks paled a little under their h."
+string_ = "His confident eyes grew dim, and his cheeks paled a little under their h."
 encoded_tokens = bpe.encode(string_)
 decoded_ids = bpe.decode(encoded_tokens)
 
